@@ -10,11 +10,13 @@ public class Note {
     @PrimaryKey(autoGenerate = true) //Room annotation
     private int id;
 
+    @ColumnInfo(name = "title") //since they match is not necessary but optional
     private String title;
 
     @ColumnInfo(name = "description_text")
     private String description;
 
+    @ColumnInfo(name = "priority")
     private int priority;
 
     public Note(String title, String description, int priority) {
