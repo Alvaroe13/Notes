@@ -12,7 +12,7 @@ import androidx.room.Update;
 @Dao    //Data access object
 public interface NoteDao {
 
-    @Insert
+    @Insert //Room library annotation
     void insert(Note note);
 
     @Update
@@ -24,7 +24,8 @@ public interface NoteDao {
     @Query("DELETE FROM note_table")
     void deleteEveryNote();
 
-    //this method will retrieve all the existing notes to set it up into the recyclerView
+    /* this method will retrieve all the existing notes to set it up into the recyclerView and
+      we will pass it onto the NoteRepository class */
     @Query("SELECT * FROM note_table ORDER BY priority DESC")
     LiveData<List<Note>> getEveryNote();
 
