@@ -36,7 +36,7 @@ public class NoteRepository {
 
     /* Here we retrieve the notes coming from the DAO and we will pass it onto
        the NoteViewModel */
-    public  LiveData<List<Note>> getExistingNote(){
+    public  LiveData<List<Note>> getExistingNotes(){
         return noteList;
     }
 
