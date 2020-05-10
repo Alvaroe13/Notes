@@ -23,7 +23,7 @@ android {
 
 }
 
-def lifecycle_version  = '2.2.0'
+def lifecycle_version = '2.2.0'
 def supportVersion = '29.0.0'
 def room_version = "2.2.5"
 
