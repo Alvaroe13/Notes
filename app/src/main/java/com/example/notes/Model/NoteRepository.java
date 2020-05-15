@@ -86,7 +86,7 @@ public class NoteRepository {
         //here lies the logic to operate, as requested by Room library it must be done in a background thread
         @Override
         protected Void doInBackground(Note... notes) {
-            dao.insert(notes[0]);
+            dao.delete(notes[0]);
             return null;
         }
     }
