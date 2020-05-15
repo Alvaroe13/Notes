@@ -1,6 +1,5 @@
 package com.example.notes.View;
 
-import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -30,7 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final int NOTE_INFORMATION = 100;
+    public static final int ADD_NOTE_REQUEST = 100;
+    public static final int EDIT_NOTE_REQUEST = 200;
 
 
     private NoteViewModel noteViewModel;
@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         initViewModel();
         fabButton();
         swipeToDelete();
+        noteClicked();
 
 
     }
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void goToNoteRoom() {
         Intent i = new Intent(this, NoteRoomActivity.class);
-        startActivityForResult(i, NOTE_INFORMATION);
+        startActivityForResult(i, ADD_NOTE_REQUEST);
     }
 
     private void setToolbar() {
@@ -83,6 +84,24 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
     }
+
+    /**
+     * this method have the logic when note layout is clicked
+     */
+    private void noteClicked() {
+        adapter.setOnNoteClickListener(new NoteAdapter.ClickListener() {
+            @Override
+            public void onNoteClick(Note note) {
+                Intent intent = new Intent(MainActivity.this, NoteRoomActivity.class);
+                intent.putExtra(NoteRoomActivity.NOTE_ID, note.getId());
+                intent.putExtra(NoteRoomActivity.NOTE_TITLE, note.getTitle());
+                intent.putExtra(NoteRoomActivity.NOTE_DESCRIPTION, note.getDescription());
+                intent.putExtra(NoteRoomActivity.NOTE_PRIORITY, note.getPriority());
+                startActivityForResult(intent, EDIT_NOTE_REQUEST);
+            }
+        });
+    }
+
 
     /**
      * here we init the viewModel and fetch existing notes in the local db if there's any
@@ -128,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == NOTE_INFORMATION && resultCode == RESULT_OK) {
+        if (requestCode == ADD_NOTE_REQUEST && resultCode == RESULT_OK) {
 
             //here we retrieve info sent from noteActivity
             String title = data.getStringExtra(NoteRoomActivity.NOTE_TITLE);
@@ -138,6 +157,25 @@ public class MainActivity extends AppCompatActivity {
             Note note = new Note(title, description, priority);
             noteViewModel.insertNote(note);
             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+
+        } else if (requestCode == EDIT_NOTE_REQUEST && resultCode == RESULT_OK) {
+
+            int id = data.getIntExtra(NoteRoomActivity.NOTE_ID, -1);
+            if (id == -1) {
+                Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            //here we retrieve info sent from noteActivity
+            String title = data.getStringExtra(NoteRoomActivity.NOTE_TITLE);
+            String description = data.getStringExtra(NoteRoomActivity.NOTE_DESCRIPTION);
+            int priority = data.getIntExtra(NoteRoomActivity.NOTE_PRIORITY, 1);
+
+            Note note = new Note(title, description, priority);
+            note.setId(id);
+            noteViewModel.updateNote(note);
+            Toast.makeText(this, "updated", Toast.LENGTH_SHORT).show();
+
         } else {
             Toast.makeText(this, "note not Saved", Toast.LENGTH_SHORT).show();
         }
@@ -155,8 +193,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
 
-        switch ( item.getItemId() ) {
-            case R.id.delete_all_notes :
+        switch (item.getItemId()) {
+            case R.id.delete_all_notes:
                 noteViewModel.deleteAllNotes();
                 return true;
             default:
@@ -164,4 +202,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
 }

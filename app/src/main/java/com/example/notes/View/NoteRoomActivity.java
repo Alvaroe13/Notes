@@ -17,11 +17,13 @@ import com.example.notes.R;
 
 public class NoteRoomActivity extends AppCompatActivity {
 
+    public static final String NOTE_ID = "com.example.notes.View.NOTE_ID";
     public static final String NOTE_TITLE = "com.example.notes.View.NOTE_TITLE";
     public static final String NOTE_DESCRIPTION = "com.example.notes.View.NOTE_DESCRIPTION";
-    public static final String NOTE_PRIORITY = "com.example.notes.View.NOTE_PRIORITY";;
+    public static final String NOTE_PRIORITY = "com.example.notes.View.NOTE_PRIORITY";
 
-
+    //ui
+    private Toolbar toolbar;
     private EditText noteTitleField, noteDescriptionField;
     private NumberPicker notePriorityField;
 
@@ -32,23 +34,45 @@ public class NoteRoomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_note_room);
 
         bindUI();
-        setToolbar();
     }
 
+
     private void bindUI() {
+        //fields
         noteTitleField = findViewById(R.id.noteTitleField);
         noteDescriptionField = findViewById(R.id.noteDescriptionField);
         notePriorityField = findViewById(R.id.notePriorityField);
-
         notePriorityField.setMinValue(1);
         notePriorityField.setMaxValue(5);
+        //toolbar
+        toolbar = findViewById(R.id.addNoteToolbar);
+        setSupportActionBar(toolbar);
+        setToolbarTitle();
+
+
     }
 
-    private void setToolbar(){
-        Toolbar toolbar = findViewById(R.id.addNoteToolbar);
-        setSupportActionBar(toolbar);
-        setTitle("New Note");
+    /**
+     * this method update the title of the toolbar depending if update or add new note
+     */
+    private void setToolbarTitle() {
+
+        Intent retrieveIntent = getIntent();
+        String title = retrieveIntent.getStringExtra(NOTE_TITLE);
+        String description = retrieveIntent.getStringExtra(NOTE_DESCRIPTION);
+        int priority = retrieveIntent.getIntExtra(NOTE_PRIORITY , 1);
+
+        if ( retrieveIntent.hasExtra(NOTE_ID) ){
+            setTitle("Edit Note");
+            noteTitleField.setText(title);
+            noteDescriptionField.setText(description);
+            notePriorityField.setValue(priority);
+        }
+        else {
+            setTitle("New Note");
+        }
     }
+
 
 
     @Override
@@ -101,10 +125,17 @@ public class NoteRoomActivity extends AppCompatActivity {
      */
     private void sendInfoToMainActivity(String noteTitle, String noteDescription, int notePriority) {
 
+        //here we get the id.
+        int idNote = getIntent().getIntExtra(NOTE_ID, -1);
+
         Intent intentData = new Intent(this, MainActivity.class);
         intentData.putExtra(NOTE_TITLE, noteTitle);
         intentData.putExtra(NOTE_DESCRIPTION, noteDescription);
         intentData.putExtra(NOTE_PRIORITY, notePriority);
+
+        if (idNote != -1){
+            intentData.putExtra(NOTE_ID, idNote);
+        }
 
         setResult(RESULT_OK, intentData);
         finish();

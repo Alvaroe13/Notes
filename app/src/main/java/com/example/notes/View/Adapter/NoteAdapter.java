@@ -12,13 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder>{
+public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
 
     private List<Note> noteList = new ArrayList<>();
-
+    private ClickListener listener;
 
     @NonNull
     @Override
@@ -35,7 +34,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
 
         holder.titleField.setText(currentNote.getTitle());
         holder.contentField.setText(currentNote.getDescription());
-        holder.priorityField.setText( String.valueOf(currentNote.getPriority()) );
+        holder.priorityField.setText(String.valueOf(currentNote.getPriority()));
 
     }
 
@@ -44,33 +43,59 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         return noteList.size();
     }
 
-    public void setNotes(List<Note> notes){
+    public void setNotes(List<Note> notes) {
         this.noteList = notes;
         notifyDataSetChanged();
     }
 
 
-    public Note getNote(int position){
+    public Note getNote(int position) {
         return noteList.get(position);
     }
 
-    public class NoteViewHolder extends RecyclerView.ViewHolder{
+    public class NoteViewHolder extends RecyclerView.ViewHolder {
 
-        private CardView noteCardView;
         private TextView titleField, contentField, priorityField;
 
 
-        public NoteViewHolder(@NonNull View itemView) {
+        public NoteViewHolder(@NonNull final View itemView) {
             super(itemView);
             bindUI(itemView);
+
+            //itemView clicked
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    int position = getAdapterPosition();
+                    if (listener != null && position != RecyclerView.NO_POSITION) {
+                        listener.onNoteClick(noteList.get(position));
+                    }
+
+
+                }
+            });
         }
 
-        private void bindUI(View itemView){
-            noteCardView = itemView.findViewById(R.id.noteLayout);
+        private void bindUI(View itemView) {
             titleField = itemView.findViewById(R.id.noteTitleID);
             contentField = itemView.findViewById(R.id.noteContentID);
             priorityField = itemView.findViewById(R.id.notePriorityID);
         }
+
+
+    }
+
+    /**
+     * Interface in charge of make the notes in Main activity clickable
+     */
+    public interface ClickListener {
+        void onNoteClick(Note note);
+    }
+
+
+    public void setOnNoteClickListener(ClickListener listener) {
+        this.listener = listener;
 
     }
 
