@@ -1,5 +1,6 @@
 package com.example.notes.View;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.notes.Model.Note;
 import com.example.notes.Model.NoteRepository;
@@ -23,6 +25,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final int NOTE_INFORMATION = 100;
 
 
      private NoteViewModel noteViewModel;
@@ -43,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
         initViewModel();
         fabButton();
 
+
+
     }
 
     private void fabButton() {
@@ -57,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void goToNoteRoom() {
         Intent i = new Intent(this, NoteRoomActivity.class);
-        startActivity(i);
+        startActivityForResult( i , NOTE_INFORMATION);
     }
 
     private void setToolbar(){
@@ -91,5 +97,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if (requestCode == NOTE_INFORMATION && resultCode == RESULT_OK){
+            
+            //here we retrieve info sent from noteActivity
+            String title = data.getStringExtra(NoteRoomActivity.NOTE_TITLE);
+            String description = data.getStringExtra(NoteRoomActivity.NOTE_DESCRIPTION);
+            int priority = data.getIntExtra(NoteRoomActivity.NOTE_PRIORITY, 1);
+            
+            Note note = new Note(title, description, priority);
+            noteViewModel.insertNote(note);
+            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();            
+        } else {
+            Toast.makeText(this, "note not Saved", Toast.LENGTH_SHORT).show();
+        }
+ 
     }
 }
